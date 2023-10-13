@@ -14,6 +14,8 @@ if not(isfolder(outF))
     mkdir(outF);
 end
 
+TRAIN = false;
+
 % INPUT - 16 images of planktic foraminifera
 disp('> INPUT:');
 IDX = path;
@@ -56,41 +58,51 @@ for K = 1:length(path)
     IDX{2, K} = (I - 1) / 16;
 end
 
-% DATASET PREPARATION - shuffle & split
-disp('> DATASET PREPARATION:');
-perm = randperm(length(DATA));
-TRAIN = DATA(perm);
-TRAIN = cat(4, TRAIN{:});
+if TRAIN
+    
+    % DATASET PREPARATION - shuffle & split
+    disp('> DATASET PREPARATION:');
+    perm = randperm(length(DATA));
+    TRAIN = DATA(perm);
+    TRAIN = cat(4, TRAIN{:});
+    
+    % TRAINING - Convolutional Autoencoder
+    disp('> TRAINING:');
+    inputSize = [imgS(1) imgS(2) 16];
+    layers = [...
+        imageInputLayer(inputSize, 'Normalization', 'none')
+        convolution2dLayer([3 3], 32, 'Padding', 'same')
+        convolution2dLayer([3 3], 64, 'Padding', 'same')
+        convolution2dLayer([3 3], 3, 'Padding', 'same')
+        convolution2dLayer([3 3], 64, 'Padding', 'same')
+        convolution2dLayer([3 3], 32, 'Padding', 'same')
+        convolution2dLayer([3 3], 16, 'Padding', 'same')
+        regressionLayer];
+    
+    options = trainingOptions('adam', ...
+        'MaxEpochs', 30, ...
+        'MiniBatchSize', 8, ...
+        'InitialLearnRate', 1e-4, ...
+        'Shuffle', 'every-epoch', ...
+        'Verbose', false, ...
+        'Plots', 'training-progress');
+    
+    net = trainNetwork(TRAIN, TRAIN, layers, options);
+    save('net.mat', 'net');
 
-% TRAINING - Convolutional Autoencoder
-disp('> TRAINING:');
-inputSize = [imgS(1) imgS(2) 16];
-layers = [...
-    imageInputLayer(inputSize, 'Normalization', 'none')
-    convolution2dLayer([3 3], 32, 'Padding', 'same')
-    convolution2dLayer([3 3], 64, 'Padding', 'same')
-    convolution2dLayer([3 3], 3, 'Padding', 'same')
-    convolution2dLayer([3 3], 64, 'Padding', 'same')
-    convolution2dLayer([3 3], 32, 'Padding', 'same')
-    convolution2dLayer([3 3], 16, 'Padding', 'same')
-    regressionLayer];
+end
 
-options = trainingOptions('adam', ...
-    'MaxEpochs', 30, ...
-    'MiniBatchSize', 8, ...
-    'InitialLearnRate', 1e-4, ...
-    'Shuffle', 'every-epoch', ...
-    'Verbose', false, ...
-    'Plots', 'training-progress');
-
-net = trainNetwork(TRAIN, TRAIN, layers, options);
-save('net.mat', 'net');
 
 % EXTRACTION - 224x224x3 image
 disp('> EXTRACTION:');
 COLOR = {};
-encoder = assembleNetwork(net.Layers(1:4));
-encoder = freezeWeights(encoder);
+%encoder = assembleNetwork(net.Layers(1:4));
+%encoder = freezeWeights(encoder);
+
+encoder = load("net.mat").net;
+a = activations(encoder,DATA{1},'conv_3');
+imwrite(a, 'test.png');
+
 I = 1;
 for K = 1:length(path)
     disp(path{K});
