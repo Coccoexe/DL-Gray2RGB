@@ -34,7 +34,30 @@ while i < length(imds.Labels)
         i = i + 1;
     end
 
-    % shuffle channels
-    px =  px(:, :, randperm(16));
+    % combine 16 images into 3 channels
+    color = zeros(imgSize(1), imgSize(2), 3);
+    color(:, :, 1) = px(:, :, 2);
+    color(:, :, 2) = px(:, :, 8);
+    color(:, :, 3) = px(:, :, 15);
+    color = color / 255;
+    imshow(color);
+
+    % compute x and y gradients
+    [Gmag1, Gdir1] = imgradient(color(:, :, 1));
+    [Gmag2, Gdir2] = imgradient(color(:, :, 2));
+    [Gmag3, Gdir3] = imgradient(color(:, :, 3));
+
+    % compute gradient magnitude and direction
+    Gmag = Gmag1 + Gmag2 + Gmag3;
+    Gdir = Gdir1 + Gdir2 + Gdir3;
+    imshowpair(Gmag, Gdir, 'montage');
     
+    % duh
+    %duh = zeros(imgSize(1), imgSize(2), 3);
+    %duh(:, :, 1) = Gmag;
+    %duh(:, :, 2) = Gdir;
+    %duh(:, :, 3) = sqrt((Gmag / 255).^2 + (Gdir / 255).^2);
+    %imshow(duh);
+
+    keyboard
 end
