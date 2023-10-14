@@ -72,19 +72,24 @@ if TRAIN
     layers = [...
         imageInputLayer(inputSize, 'Normalization', 'none')
         convolution2dLayer([3 3], 32, 'Padding', 'same')
-        batchNormalizationLayer()
+        %batchNormalizationLayer()
+        averagePooling2dLayer([3 3], 'Padding', 'same')
         leakyReluLayer()
         convolution2dLayer([3 3], 64, 'Padding', 'same')
-        batchNormalizationLayer()
+        averagePooling2dLayer([3 3], 'Padding', 'same')
+        %batchNormalizationLayer()
         leakyReluLayer()
         convolution2dLayer([3 3], 3, 'Padding', 'same')
-        batchNormalizationLayer()
+        averagePooling2dLayer([3 3], 'Padding', 'same')
+        %batchNormalizationLayer()
         leakyReluLayer()
         convolution2dLayer([3 3], 64, 'Padding', 'same')
-        batchNormalizationLayer()
+        averagePooling2dLayer([3 3], 'Padding', 'same')
+        %batchNormalizationLayer()
         leakyReluLayer()
         convolution2dLayer([3 3], 32, 'Padding', 'same')
-        batchNormalizationLayer()
+        averagePooling2dLayer([3 3], 'Padding', 'same')
+        %batchNormalizationLayer()
         leakyReluLayer()
         convolution2dLayer([3 3], 16, 'Padding', 'same')
         regressionLayer];
@@ -98,7 +103,7 @@ if TRAIN
         'Plots', 'training-progress');
     
     net = trainNetwork(TRAIN, TRAIN, layers, options);
-    save('net_POOL.mat', 'net');
+    save('net_norm.mat', 'net');
 
 end
 
@@ -106,10 +111,12 @@ end
 % EXTRACTION - 224x224x3 image
 disp('> EXTRACTION:');
 COLOR = {};
+%encoder = assembleNetwork(net.Layers(1:4));
+%encoder = freezeWeights(encoder);
 
-encoder = load("net_ROSSO.mat").net;
+encoder = load("net_1.mat").net;
 a = activations(encoder,DATA{1},'conv_3');
-a = rgb2ycbcr(a);
+%a = rgb2ycbcr(a);
 imwrite(a, 'test_1.png');
 
 
