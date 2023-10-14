@@ -6,7 +6,7 @@
 clear all
 clc
 baseF = 'assignment/dataset';   % dataset folder
-outF = 'AUTOENCIMG';            % colorized images folder
+outF = 'AUTOENCIMG_NORM';            % colorized images folder
 imgS = [224 224];               % image size
 path = dir(baseF);
 path = {path([path.isdir] & ~ismember({path.name}, {'.', '..'})).name};
@@ -14,7 +14,7 @@ if not(isfolder(outF))
     mkdir(outF);
 end
 
-TRAIN = true;
+TRAIN = false;
 
 % INPUT - 16 images of planktic foraminifera
 disp('> INPUT:');
@@ -107,30 +107,31 @@ end
 disp('> EXTRACTION:');
 COLOR = {};
 
-encoder = load("net_ROSSO.mat").net;
-a = activations(encoder,DATA{1},'conv_3');
-a = rgb2ycbcr(a);
-imwrite(a, 'test_1.png');
+encoder = load("net_NORM.mat").net;
+%a = activations(encoder,DATA{1},'conv_3');
+%a = rgb2ycbcr(a);
+%imwrite(a, 'test_1.png');
 
 
-% I = 1;
-% for K = 1:length(path)
-%     disp(path{K});
-% 
-%     % output folder
-%     if not(isfolder(fullfile(outF, path{K})))
-%         mkdir(outF, path{K});
-%     end
-% 
-%     % extract images
-%     index = 0;
-%     if K ~= 1
-%         index = sum(cell2mat(IDX(2, 1:K - 1)));
-%     end
-%     for J = 1:IDX{2, K}
-%         % encode image
-%         px = predict(encoder, DATA{index + J});
-%         COLOR{end + 1} = px;
-%         imwrite(px, fullfile(outF, path{K}, sprintf('%d.png', J)));
-%     end
-% end
+I = 1;
+for K = 1:length(path)
+    disp(path{K});
+
+    % output folder
+    if not(isfolder(fullfile(outF, path{K})))
+        mkdir(outF, path{K});
+    end
+
+    % extract images
+    index = 0;
+    if K ~= 1
+        index = sum(cell2mat(IDX(2, 1:K - 1)));
+    end
+    for J = 1:IDX{2, K}
+        % encode image
+        px = activations(encoder, DATA{index + J},'conv_3');
+        px = rgb2ycbcr(px);
+        COLOR{end + 1} = px;
+        imwrite(px, fullfile(outF, path{K}, sprintf('%d.png', J)));
+    end
+end
