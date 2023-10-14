@@ -14,7 +14,7 @@ if not(isfolder(outF))
     mkdir(outF);
 end
 
-TRAIN = false;
+TRAIN = true;
 
 % INPUT - 16 images of planktic foraminifera
 disp('> INPUT:');
@@ -72,10 +72,25 @@ if TRAIN
     layers = [...
         imageInputLayer(inputSize, 'Normalization', 'none')
         convolution2dLayer([3 3], 32, 'Padding', 'same')
+        batchNormalizationLayer()
+        leakyReluLayer()
+        dropoutLayer
         convolution2dLayer([3 3], 64, 'Padding', 'same')
+        batchNormalizationLayer()
+        leakyReluLayer()
+        dropoutLayer
         convolution2dLayer([3 3], 3, 'Padding', 'same')
+        batchNormalizationLayer()
+        leakyReluLayer()
+        dropoutLayer
         convolution2dLayer([3 3], 64, 'Padding', 'same')
+        batchNormalizationLayer()
+        leakyReluLayer()
+        dropoutLayer
         convolution2dLayer([3 3], 32, 'Padding', 'same')
+        batchNormalizationLayer()
+        leakyReluLayer()
+        dropoutLayer
         convolution2dLayer([3 3], 16, 'Padding', 'same')
         regressionLayer];
     
@@ -88,7 +103,7 @@ if TRAIN
         'Plots', 'training-progress');
     
     net = trainNetwork(TRAIN, TRAIN, layers, options);
-    save('net.mat', 'net');
+    save('net_2.mat', 'net');
 
 end
 
@@ -99,28 +114,35 @@ COLOR = {};
 %encoder = assembleNetwork(net.Layers(1:4));
 %encoder = freezeWeights(encoder);
 
-encoder = load("net.mat").net;
+encoder = load("net_1.mat").net;
 a = activations(encoder,DATA{1},'conv_3');
-imwrite(a, 'test.png');
+%a = activations(encoder,DATA{1},'conv_6');
+%a = a(:,:,1);
+%a to 0,255 range
+%a = a - min(a(:));
+%a = a / max(a(:));
+%a = uint8(a * 255);
+imwrite(a, 'test_1.png');
 
-I = 1;
-for K = 1:length(path)
-    disp(path{K});
 
-    % output folder
-    if not(isfolder(fullfile(outF, path{K})))
-        mkdir(outF, path{K});
-    end
-
-    % extract images
-    index = 0;
-    if K ~= 1
-        index = sum(cell2mat(IDX(2, 1:K - 1)));
-    end
-    for J = 1:IDX{2, K}
-        % encode image
-        px = predict(encoder, DATA{index + J});
-        COLOR{end + 1} = px;
-        imwrite(px, fullfile(outF, path{K}, sprintf('%d.png', J)));
-    end
-end
+% I = 1;
+% for K = 1:length(path)
+%     disp(path{K});
+% 
+%     % output folder
+%     if not(isfolder(fullfile(outF, path{K})))
+%         mkdir(outF, path{K});
+%     end
+% 
+%     % extract images
+%     index = 0;
+%     if K ~= 1
+%         index = sum(cell2mat(IDX(2, 1:K - 1)));
+%     end
+%     for J = 1:IDX{2, K}
+%         % encode image
+%         px = predict(encoder, DATA{index + J});
+%         COLOR{end + 1} = px;
+%         imwrite(px, fullfile(outF, path{K}, sprintf('%d.png', J)));
+%     end
+% end
