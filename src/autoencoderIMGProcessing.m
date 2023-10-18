@@ -6,7 +6,7 @@
 clear all
 clc
 baseF = 'assignment/dataset';   % dataset folder
-outF = 'AUTOENCIMG_NORM';            % colorized images folder
+outF = 'AUTOENCIMG';            % colorized images folder
 imgS = [224 224];               % image size
 path = dir(baseF);
 path = {path([path.isdir] & ~ismember({path.name}, {'.', '..'})).name};
@@ -56,6 +56,11 @@ for K = 1:length(path)
 
     % save index
     IDX{2, K} = (I - 1) / 16;
+end
+
+% replace '. ' on folder name
+for K = 1:length(path)
+    IDX{1, K} = strrep(IDX{1, K}, '. ', '_');
 end
 
 if TRAIN

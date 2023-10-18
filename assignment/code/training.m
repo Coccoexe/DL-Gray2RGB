@@ -4,7 +4,7 @@ warning off
 
 %###########network and data initialization###############
 
-pathP = 'AUTOENCIMG_NORM';%here you have to save the 3-channels images, not the original images
+pathP = 'assignment/dataset';%here you have to save the 3-channels images, not the original images
 
 imP = imageDatastore(pathP, ...
                      'IncludeSubfolders', true, ...
