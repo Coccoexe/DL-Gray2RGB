@@ -2,15 +2,17 @@
 
 ## Folder Structure
 
-> - assignment: contains original code and dataset
+> - assignment: contains original code
 > - src: our code
 >     - autoencoderIMGProcessing.m    used to train an autoencoder that transform 16 grayscale images into an rgb image
 >     - train_RESNET50.m              used to train the pretrained RESNET50 to classify the rgb images created with autoencoder
+>     - ensemble.m                    used to train two networks and enseble with weighted sum rule
 > - out_1 and out_2 contains trained RESNET50 with results obtained
 > - AUTOENCIMG_1 and AUTOENCIMG_2 are the two colorized images created respectively by net_1 and net_2
 > - net_1 and net_2 are two trained autoencoders
 > - out_OR contains the output for the original method (percentileIMG)
 > - percentileIMG is the original method used to colorize images
+> - out_ensemble contains two trained networks and enseble results
 
 ## autoencoderIMGPocessing.m
 

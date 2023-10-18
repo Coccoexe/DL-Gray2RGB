@@ -7,7 +7,7 @@
 %        |-> NCSU-CUB_Foram_Images_Others    
 
 path = {'G. Bulloides','G. Ruber', 'G. Sacculifer', 'N. Dutertrei', 'N. Incompta', 'N. Pachyderma', 'Others'};
-outF = 'percentileIMG';
+outF = 'percentileIMG1';
 
 %create output folder
 mkdir(outF);
@@ -21,10 +21,11 @@ for K = 1 : length(path)
                          'LabelSource','foldernames');
     
     %create new folder in the selected output folde that has the same name of the input folder                  
-    mkdir(outF,path{K}); 
+    mkdir(outF,strrep(path{K},'. ','_')); 
     
     %go through each image in the dataStore
     I = 1;
+    X = 1;
     while I < length(imB.Labels)                
 
         [imgR, imgC] = size(readimage(imB,I));
@@ -65,7 +66,8 @@ for K = 1 : length(path)
         %every matrix obtained this way is used as a channel in the RGB image
         %and is than saved in the new folder
         imgO = cat(3,img10,img50,img90);
-        nome = strcat(outF,'/',path{K},'/',char(imB.Labels(I-1)),'.png');
+        nome = strcat(outF,'/',strrep(path{K},'. ','_'),sprintf('/%d.png',X));
         imwrite(imgO,nome);
+        X = X+1;
     end
 end    
